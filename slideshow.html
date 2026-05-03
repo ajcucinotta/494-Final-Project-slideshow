@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Founder's Ledger — Time Traveler's Guide to E-Commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,700..900;1,9..144,700..900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #FAF8F4;
+  --ink:          #1C1C1A;
+  --ink-muted:    #5A5A54;
+  --ink-faint:    #9A9A94;
+  --accent:       #6B1D2E;
+  --accent-faint: rgba(107,29,46,0.09);
+  --border:       #DDD8D0;
+  --dark:         #0E0D0B;
+  --dark-2:       #181714;
+  --serif:        'Source Serif 4', Georgia, serif;
+  --sans:         'Inter', system-ui, sans-serif;
+  --display:      'Fraunces', Georgia, serif;
+  --dur:          0.5s;
+  --ease:         cubic-bezier(0.4,0,0.2,1);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--dark);
+  color: #fff;
+  font-family: var(--serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── PROGRESS LINE ─────────────────────────────── */
+#ss-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width var(--dur) var(--ease);
+  z-index: 200;
+}
+
+/* ── STAGE & TRACK ─────────────────────────────── */
+.ss-stage {
+  position: fixed;
+  inset: 0;
+  bottom: 64px;
+  overflow: hidden;
+}
+
+.ss-track {
+  display: flex;
+  height: 100%;
+  transition: transform var(--dur) var(--ease);
+  will-change: transform;
+}
+
+.slide {
+  min-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* slide themes */
+.slide.dark  { background: var(--dark); }
+.slide.light { background: var(--bg); color: var(--ink); }
+.slide.mid   { background: var(--dark-2); }
+
+/* ── BACKGROUND YEAR WATERMARK ─────────────────── */
+.slide-bg-year {
+  position: absolute;
+  font-family: var(--display);
+  font-size: clamp(120px, 22vw, 220px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.slide.dark  .slide-bg-year { color: rgba(255,255,255,0.03); }
+.slide.mid   .slide-bg-year { color: rgba(255,255,255,0.04); }
+.slide.light .slide-bg-year { color: rgba(107,29,46,0.06); }
+
+/* ── SCANLINES overlay (dark slides only) ──────── */
+.slide.dark::after,
+.slide.mid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── SLIDE INNER ───────────────────────────────── */
+.slide-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 740px;
+  width: 100%;
+}
+
+.slide.active .slide-inner {
+  animation: fadeUp 0.55s var(--ease) forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── KICKER / ERA BADGE ────────────────────────── */
+.kicker {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 2px;
+  margin-bottom: 24px;
+}
+
+.kicker.accent  { background: var(--accent); color: #fff; }
+.kicker.outline-light { border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.55); }
+.kicker.outline-dark  { border: 1px solid var(--border); color: var(--ink-faint); }
+
+/* ── YEAR TAG ──────────────────────────────────── */
+.year-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.year-tag::before {
+  content: '';
+  display: inline-block;
+  width: 22px;
+  height: 2px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── TITLES ────────────────────────────────────── */
+.slide-title {
+  font-family: var(--display);
+  font-size: clamp(30px, 5.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+}
+
+.slide.dark  .slide-title { color: #fff; }
+.slide.mid   .slide-title { color: #fff; }
+.slide.light .slide-title { color: var(--ink); }
+
+/* ── VOICEOVER TEXT ────────────────────────────── */
+.vo {
+  font-family: var(--serif);
+  font-size: clamp(16px, 2.2vw, 20px);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.slide.dark  .vo { color: rgba(255,255,255,0.65); }
+.slide.mid   .vo { color: rgba(255,255,255,0.65); }
+.slide.light .vo { color: var(--ink-muted); }
+
+.vo em {
+  font-style: italic;
+  color: inherit;
+}
+
+/* ── KEY LINE ──────────────────────────────────── */
+.key-line {
+  font-family: var(--display);
+  font-size: clamp(18px, 2.8vw, 28px);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.25;
+  margin: 28px 0 0;
+  padding-left: 20px;
+  border-left: 3px solid var(--accent);
+}
+
+.slide.dark  .key-line { color: #fff; }
+.slide.mid   .key-line { color: #fff; }
+.slide.light .key-line { color: var(--ink); }
+
+/* ── STAT CALLOUT ──────────────────────────────── */
+.stat-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-num {
+  font-family: var(--display);
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  max-width: 240px;
+}
+
+.slide.dark  .stat-label { color: rgba(255,255,255,0.4); }
+.slide.mid   .stat-label { color: rgba(255,255,255,0.4); }
+.slide.light .stat-label { color: var(--ink-faint); }
+
+/* ── DIVIDER ───────────────────────────────────── */
+.divider {
+  width: 32px;
+  height: 2px;
+  background: var(--accent);
+  margin: 20px 0;
+}
+
+/* ── CUT MOMENT ────────────────────────────────── */
+.cut-moment {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slide.dark  .cut-moment { color: rgba(255,255,255,0.3); }
+.slide.mid   .cut-moment { color: rgba(255,255,255,0.3); }
+.slide.light .cut-moment { color: var(--ink-faint); }
+
+.cut-moment::after {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* ── OPENING SLIDE SPECIAL ─────────────────────── */
+.opening-big {
+  font-family: var(--display);
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 28px;
+}
+
+.opening-big .accent-word { color: var(--accent); }
+
+.opening-sub {
+  font-family: var(--serif);
+  font-size: clamp(16px, 2.2vw, 20px);
+  font-style: italic;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 36px;
+}
+
+/* glitch effect on opening year watermark */
+@keyframes glitch {
+  0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0,0); }
+  10% { clip-path: inset(20% 0 40% 0); transform: translate(-3px, 2px); }
+  20% { clip-path: inset(60% 0 10% 0); transform: translate(3px,-2px); }
+  30% { clip-path: inset(0 0 0 0);      transform: translate(0,0); }
+  40% { clip-path: inset(40% 0 30% 0); transform: translate(2px, 1px); }
+  50% { clip-path: inset(0 0 0 0);      transform: translate(0,0); }
+}
+
+.glitch-wrap {
+  position: relative;
+  display: inline-block;
+}
+.glitch-wrap::before,
+.glitch-wrap::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: #fff;
+}
+.glitch-wrap::before {
+  color: #0ff;
+  mix-blend-mode: screen;
+  animation: glitch 3.5s infinite steps(1);
+  animation-delay: 0.1s;
+}
+.glitch-wrap::after {
+  color: #f0f;
+  mix-blend-mode: screen;
+  animation: glitch 3.5s infinite steps(1);
+  animation-delay: 0.2s;
+}
+
+/* timeline dots on opening slide */
+.timeline-dots {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.td-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.td-circle {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.td-year {
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+}
+.td-line {
+  width: 28px; height: 1px;
+  background: rgba(255,255,255,0.12);
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .td-line { width: 12px; }
+  .td-year { font-size: 8px; }
+}
+
+/* ── ENDING SLIDE ──────────────────────────────── */
+.ending-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 28px 0;
+}
+.ending-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ending-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 9px;
+}
+.ending-text {
+  font-family: var(--display);
+  font-size: clamp(18px, 2.8vw, 26px);
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+}
+.ending-text em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+/* ── WINNERS / LOSERS GRID ─────────────────────── */
+.wl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+@media (max-width: 560px) {
+  .wl-grid { grid-template-columns: 1fr; }
+}
+.wl-col-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid currentColor;
+}
+.wl-col.win .wl-col-label { color: #2A6B48; }
+.wl-col.lose .wl-col-label { color: var(--accent); }
+
+.wl-item {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.65);
+}
+.wl-item strong { color: #fff; }
+
+/* ── FOOTER NAV ────────────────────────────────── */
+.ss-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: var(--dark);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  z-index: 100;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 2px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.nav-btn:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+.nav-btn svg {
+  width: 12px; height: 12px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.ss-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ss-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.ss-dot.active {
+  background: var(--accent);
+  transform: scale(1.6);
+}
+
+.ss-counter {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.25);
+  min-width: 36px;
+  text-align: center;
+}
+
+/* kbd hint */
+.kbd-hint {
+  position: fixed;
+  bottom: 76px; right: 18px;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 1;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.kbd-hint.hidden { opacity: 0; }
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 3px;
+  font-size: 8px;
+  color: rgba(255,255,255,0.3);
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS -->
+<div id="ss-progress"></div>
+
+<!-- STAGE -->
+<div class="ss-stage">
+<div class="ss-track" id="ss-track">
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 0 — OPENING: THE SETUP
+════════════════════════════════════════════════════ -->
+<div class="slide dark active" data-index="0">
+  <div class="slide-bg-year" style="opacity:0.04; bottom:-0.1em; right:-0.05em;">2005</div>
+  <div class="slide-inner" style="max-width:680px;">
+    <span class="kicker outline-light">Team Harper · HarperSmall Research · 2026</span>
+    <h1 class="opening-big">
+      I built a time machine to answer<br>
+      <span class="accent-word">one question.</span>
+    </h1>
+    <p class="opening-sub">What actually happened to e-commerce — and where is it going next? So I went back… to the beginning.</p>
+    <div class="timeline-dots">
+      <div class="td-item">
+        <div class="td-circle" style="background:#3B5E8C;"></div>
+        <span class="td-year">2005</span>
+      </div>
+      <div class="td-line"></div>
+      <div class="td-item">
+        <div class="td-circle" style="background:#3B5E8C;"></div>
+        <span class="td-year">2006–13</span>
+      </div>
+      <div class="td-line"></div>
+      <div class="td-item">
+        <div class="td-circle" style="background:#2A6B48;"></div>
+        <span class="td-year">2014–18</span>
+      </div>
+      <div class="td-line"></div>
+      <div class="td-item">
+        <div class="td-circle" style="background:#2A6B48;"></div>
+        <span class="td-year">2020–22</span>
+      </div>
+      <div class="td-line"></div>
+      <div class="td-item">
+        <div class="td-circle" style="background:var(--accent);"></div>
+        <span class="td-year">2023–25</span>
+      </div>
+      <div class="td-line"></div>
+      <div class="td-item">
+        <div class="td-circle" style="background:var(--accent);"></div>
+        <span class="td-year">2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 1 — 2005: THE WILD WEST
+════════════════════════════════════════════════════ -->
+<div class="slide dark" data-index="1">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2005</div>
+  <div class="slide-inner">
+    <div class="year-tag">2005</div>
+    <h2 class="slide-title">The Wild West</h2>
+    <p class="vo">I land in 2005… and selling online feels like chaos. If you wanted to run a business, you needed everything separately — a website, a payment processor, shipping, inventory. Nothing was connected. Nothing was easy.</p>
+    <p class="vo">Etsy launches as a marketplace for handmade goods. Amazon Prime rolls out two-day delivery. Two completely different bets about what customers would want — and both turn out to be right.</p>
+    <div class="key-line">"E-commerce existed… but it wasn't built for you."</div>
+    <p class="cut-moment">Then something changed</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 2 — 2006–2013: PLATFORMS TAKE OVER
+════════════════════════════════════════════════════ -->
+<div class="slide mid" data-index="2">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2006</div>
+  <div class="slide-inner">
+    <span class="kicker accent">Era I — Platform Construction</span>
+    <div class="year-tag">2006–2013</div>
+    <h2 class="slide-title">Platforms Take Over</h2>
+    <p class="vo">In 2006, two completely different ideas show up at the same time. Amazon launches Fulfillment by Amazon — you send them your product, they handle everything. At the same time, Shopify launches, letting anyone build a store without coding.</p>
+    <p class="vo">One controlled the customer. The other gave you independence. By 2012, Amazon acquires Kiva Systems robotics. The Shopify App Store opens in 2009. The infrastructure is laid — the playbook doesn't exist yet.</p>
+    <div class="key-line">"For the first time… anyone could become an entrepreneur."</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="stat-num">2006</span>
+        <span class="stat-label">FBA &amp; Shopify both launch — same year, opposite models</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">$1M</span>
+        <span class="stat-label">Shopify's first million in merchant sales — 2008</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 3 — 2014–2018: THE GOLD RUSH
+════════════════════════════════════════════════════ -->
+<div class="slide dark" data-index="3">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2015</div>
+  <div class="slide-inner">
+    <span class="kicker accent">Era II — Cheap Acquisition</span>
+    <div class="year-tag">2014–2018</div>
+    <h2 class="slide-title">The Gold Rush</h2>
+    <p class="vo">Now I understand the game. If you could run ads on Facebook or Instagram, you could build a brand overnight. Customer acquisition was cheap. Growth was fast. Shopify IPOs in 2015. Amazon's third-party seller share crosses 50% of unit sales.</p>
+    <p class="vo">Casper, Warby Parker, Allbirds, Glossier. The brands that look like strategic geniuses in retrospect were often simply early — early to a channel that was genuinely inefficient for a brief window.</p>
+    <div class="key-line">"If you could find customers cheap… you won."</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="stat-num">$500</span>
+        <span class="stat-label">Average D2C customer acquisition cost in 2014 — still manageable</span>
+      </div>
+    </div>
+    <p class="cut-moment">But then… everyone figured it out</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 4 — 2020–2022: BOOM → COLLAPSE
+════════════════════════════════════════════════════ -->
+<div class="slide mid" data-index="4">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2020</div>
+  <div class="slide-inner">
+    <span class="kicker accent">Era II → Era III</span>
+    <div class="year-tag">2020–2022</div>
+    <h2 class="slide-title">Boom → Collapse</h2>
+    <p class="vo">Then the pandemic hit. E-commerce exploded — Shopify's merchant base nearly doubles to 1.7M+ in a single year. Everyone rushed online. But at the same time, competition exploded too.</p>
+    <p class="vo">Then Apple changed everything. iOS 14.5 App Tracking Transparency launches April 2021. Meta loses targeting precision. D2C customer acquisition cost begins a 60–80% multi-year climb. The DTC playbook breaks here — permanently. Casper goes private at a 50% IPO discount.</p>
+    <div class="key-line">"The entire growth engine… broke overnight."</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="stat-num">1.7M+</span>
+        <span class="stat-label">Shopify merchants by end of 2020</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">222%</span>
+        <span class="stat-label">D2C CAC surge, 2017–2025</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 5 — 2023–2025: AI CHANGES THE GAME
+════════════════════════════════════════════════════ -->
+<div class="slide dark" data-index="5">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2023</div>
+  <div class="slide-inner">
+    <span class="kicker accent">Era III — The AI Flood</span>
+    <div class="year-tag">2023–2025</div>
+    <h2 class="slide-title">AI Changes the Game</h2>
+    <p class="vo">Then I jump forward again… and everything got easier. AI can write ads, design products, answer customers. What used to take a team of eight now takes one person and a $300/month tool stack.</p>
+    <p class="vo">Amazon's $4B Anthropic investment signals the platform layer knows exactly what's coming. 500,000+ Amazon sellers are using AI for listings. The product page that took two weeks and $800 to build in 2019 takes forty minutes in 2025. So does your competitor's.</p>
+    <div class="divider"></div>
+    <p class="vo" style="color:rgba(255,255,255,0.45); font-size:clamp(15px,2vw,18px);">But that's the problem.</p>
+    <div class="key-line">"AI didn't just create opportunity… it created noise."</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="stat-num">500K+</span>
+        <span class="stat-label">Amazon sellers using generative AI for listings in 2025</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">$300</span>
+        <span class="stat-label">Monthly AI tool stack vs. $80–120K team cost in 2018</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 6 — TODAY: WINNERS VS LOSERS
+════════════════════════════════════════════════════ -->
+<div class="slide mid" data-index="6">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2026</div>
+  <div class="slide-inner" style="max-width:760px;">
+    <span class="kicker accent">Today</span>
+    <div class="year-tag">2026</div>
+    <h2 class="slide-title">Winners vs. Losers</h2>
+    <p class="vo">Now the pattern is clear. The platforms captured the chokepoints. AI removed the friction of content. And the middle got squeezed from both ends simultaneously.</p>
+    <div class="wl-grid">
+      <div class="wl-col win">
+        <p class="wl-col-label">Winners</p>
+        <div class="wl-item"><strong>The platforms.</strong> Amazon, Shopify, Stripe — own fulfillment, payment, and data.</div>
+        <div class="wl-item"><strong>Tiny, founder-led brands.</strong> Real point of view. Owned community. AI can't replicate a voice built over years.</div>
+        <div class="wl-item"><strong>Large operators with capital.</strong> Anker, Vuori, On Running — brand equity that compounds independently.</div>
+      </div>
+      <div class="wl-col lose">
+        <p class="wl-col-label">Losers</p>
+        <div class="wl-item"><strong>The competent middle.</strong> Not big enough for a real moat. Not small enough to win on craft.</div>
+        <div class="wl-item"><strong>Generic D2C brands.</strong> The "found a winning product, ran ads, scaled" playbook is now a software subscription available to anyone.</div>
+        <div class="wl-item"><strong>Etsy-native makers competing on price.</strong> The trust signal is degrading faster than enforcement can compensate.</div>
+      </div>
+    </div>
+    <div class="key-line" style="margin-top:20px;">"If your product is easy to copy… you lose."</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 7 — THE FUTURE: MIC DROP
+════════════════════════════════════════════════════ -->
+<div class="slide dark" data-index="7">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em;">2030</div>
+  <div class="slide-inner">
+    <span class="kicker outline-light">The Answer</span>
+    <h2 class="slide-title" style="margin-bottom:12px;">So I came back…<br>with one answer.</h2>
+    <p class="vo" style="margin-bottom:24px;">"E-commerce didn't get harder because of AI. It got harder because <em>differentiation disappeared.</em>"</p>
+    <div class="ending-lines">
+      <div class="ending-line">
+        <div class="ending-bullet"></div>
+        <p class="ending-text">Build an <em>audience</em>… before a product.</p>
+      </div>
+      <div class="ending-line">
+        <div class="ending-bullet"></div>
+        <p class="ending-text">Use AI for <em>operations</em>… not your voice.</p>
+      </div>
+      <div class="ending-line">
+        <div class="ending-bullet"></div>
+        <p class="ending-text">Because the only thing AI can't replicate… is something <em>real.</em></p>
+      </div>
+    </div>
+    <div class="stat-row" style="margin-top:32px;">
+      <div class="stat-box">
+        <span class="stat-num">3:1</span>
+        <span class="stat-label">Minimum viable LTV/CAC ratio — unchanged by AI, still the right number</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">$1T</span>
+        <span class="stat-label">Projected US B2C agentic GMV by 2030 (McKinsey)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 8 — ENDING SHOT
+════════════════════════════════════════════════════ -->
+<div class="slide light" data-index="8">
+  <div class="slide-bg-year" style="bottom:-0.05em; right:-0.05em; color:rgba(107,29,46,0.05);">Next</div>
+  <div class="slide-inner" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+    <span class="kicker outline-dark" style="margin-bottom:32px;">HarperSmall Research · 2026</span>
+    <h2 class="slide-title" style="color:var(--ink); font-size:clamp(28px,5vw,52px); max-width:560px; margin-bottom:20px;">
+      And that… is where e-commerce is going next.
+    </h2>
+    <p style="font-family:var(--serif); font-size:clamp(16px,2vw,19px); font-style:italic; color:var(--ink-muted); line-height:1.65; max-width:460px; margin-bottom:40px;">
+      The businesses that compound for a decade look more like 1990s mail-order catalogs run with 2026 tools — patient, profitable, modest, durable. Not arbitrage. Actual brands.
+    </p>
+    <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+      <p style="font-family:var(--sans); font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent);">The Founder's Ledger</p>
+      <p style="font-family:var(--sans); font-size:11px; color:var(--ink-faint); letter-spacing:0.06em;">AI-Enabled Entrepreneurship in Platform E-Commerce</p>
+    </div>
+  </div>
+</div>
+
+
+</div><!-- /ss-track -->
+</div><!-- /ss-stage -->
+
+<!-- KBD HINT -->
+<div class="kbd-hint" id="kbd-hint">
+  <span class="kbd">←</span>
+  <span class="kbd">→</span>
+  <span style="margin-left:4px;">arrow keys</span>
+</div>
+
+<!-- FOOTER -->
+<footer class="ss-footer">
+  <button class="nav-btn" id="btn-prev" disabled aria-label="Previous slide">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Prev
+  </button>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <div class="ss-dots" id="ss-dots" role="tablist"></div>
+    <span class="ss-counter" id="ss-counter">1 / 9</span>
+  </div>
+  <button class="nav-btn" id="btn-next" aria-label="Next slide">
+    Next
+    <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+  </button>
+</footer>
+
+<script>
+(function () {
+  var TOTAL   = 9;
+  var current = 0;
+  var track   = document.getElementById('ss-track');
+  var slides  = Array.from(track.querySelectorAll('.slide'));
+  var dotsWrap= document.getElementById('ss-dots');
+  var counter = document.getElementById('ss-counter');
+  var prevBtn = document.getElementById('btn-prev');
+  var nextBtn = document.getElementById('btn-next');
+  var progress= document.getElementById('ss-progress');
+  var kbdHint = document.getElementById('kbd-hint');
+  var kbdTimer;
+
+  /* build dots */
+  slides.forEach(function (_, i) {
+    var d = document.createElement('button');
+    d.className = 'ss-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('role', 'tab');
+    d.setAttribute('aria-label', 'Slide ' + (i + 1));
+    d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    d.addEventListener('click', function () { goTo(i); });
+    dotsWrap.appendChild(d);
+  });
+
+  var dots = Array.from(dotsWrap.querySelectorAll('.ss-dot'));
+
+  function goTo(n) {
+    if (n < 0 || n >= TOTAL) return;
+
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    dots[current].setAttribute('aria-selected', 'false');
+
+    current = n;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+
+    /* force reflow so animation re-triggers */
+    void slides[current].offsetWidth;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    dots[current].setAttribute('aria-selected', 'true');
+
+    counter.textContent = (current + 1) + ' / ' + TOTAL;
+    progress.style.width = (current / (TOTAL - 1) * 100) + '%';
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === TOTAL - 1;
+  }
+
+  prevBtn.addEventListener('click', function () { goTo(current - 1); });
+  nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+  /* keyboard */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  { e.preventDefault(); goTo(current + 1); hideKbd(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    { e.preventDefault(); goTo(current - 1); hideKbd(); }
+  });
+
+  /* swipe */
+  var tx0 = null;
+  document.addEventListener('touchstart', function (e) { tx0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   function (e) {
+    if (tx0 === null) return;
+    var dx = e.changedTouches[0].clientX - tx0;
+    if (Math.abs(dx) > 40) { dx < 0 ? goTo(current + 1) : goTo(current - 1); hideKbd(); }
+    tx0 = null;
+  }, { passive: true });
+
+  function hideKbd() {
+    kbdHint.classList.add('hidden');
+    clearTimeout(kbdTimer);
+  }
+
+  kbdTimer = setTimeout(hideKbd, 5000);
+  prevBtn.addEventListener('click', hideKbd);
+  nextBtn.addEventListener('click', hideKbd);
+
+  goTo(0);
+  progress.style.width = '0%';
+}());
+</script>
+</body>
+</html>
