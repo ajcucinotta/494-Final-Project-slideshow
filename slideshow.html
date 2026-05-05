@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Founder's Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,700..900;1,9..144,700..900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #6B1D2E;
+  --serif:  'Source Serif 4', Georgia, serif;
+  --sans:   'Inter', system-ui, sans-serif;
+  --disp:   'Fraunces', Georgia, serif;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #07060A;
+  color: #fff;
+  font-family: var(--serif);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.9s ease;
+}
+
+/* ── GRAIN ── */
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%; height: 200%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.18s steps(1) infinite;
+}
+@keyframes grain {
+  0%   { transform: translate(0,0); }      12% { transform: translate(-4%,-8%); }
+  25%  { transform: translate(6%,-3%); }   37% { transform: translate(-2%,7%); }
+  50%  { transform: translate(8%,4%); }    62% { transform: translate(-6%,-6%); }
+  75%  { transform: translate(3%,9%); }    87% { transform: translate(-7%,2%); }
+  100% { transform: translate(5%,-5%); }
+}
+
+/* ── VIGNETTE ── */
+.vignette {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.8) 100%);
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 0.8s;
+}
+body.light-scene .vignette {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.15) 100%);
+}
+
+/* ── FLASH ── */
+#flash {
+  position: fixed; inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 950;
+  transition: opacity 0.28s ease;
+}
+#flash.on { opacity: 1; }
+
+/* ── BG YEAR ── */
+#bg-year {
+  position: fixed;
+  bottom: -0.08em; right: -0.04em;
+  font-family: var(--disp);
+  font-size: clamp(130px, 26vw, 280px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  color: rgba(255,255,255,0.03);
+  transition: color 0.8s;
+}
+body.light-scene #bg-year { color: rgba(107,29,46,0.05); }
+#bg-year.glitch { animation: bgyglitch 5s infinite steps(1); }
+@keyframes bgyglitch {
+  0%,85%,100% { transform: none; filter: none; }
+  87% { transform: translate(-2px,1px); filter: drop-shadow(3px 0 0 rgba(0,255,255,0.4)); }
+  89% { transform: translate(2px,-1px); filter: drop-shadow(-3px 0 0 rgba(255,0,255,0.3)); }
+  91% { transform: none; filter: none; }
+}
+
+/* ── CHAPTER CARD ── */
+#chapter-card {
+  position: fixed; inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 800;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+#chapter-card.on { opacity: 1; pointer-events: all; }
+.ch-inner { text-align: center; padding: 24px; }
+.ch-badge {
+  display: block;
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 22px;
+}
+.ch-year {
+  display: block;
+  font-family: var(--disp);
+  font-size: clamp(52px, 12vw, 110px);
+  font-weight: 700; line-height: 1;
+  letter-spacing: -0.04em;
+  color: #fff;
+  margin-bottom: 14px;
+}
+.ch-title {
+  display: block;
+  font-family: var(--serif);
+  font-size: clamp(17px, 3vw, 26px);
+  font-style: italic;
+  color: rgba(255,255,255,0.38);
+}
+
+/* ── SCENE INFO top-left ── */
+#scene-info {
+  position: fixed;
+  top: 26px; left: 26px;
+  z-index: 200;
+  display: flex; flex-direction: column; gap: 3px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#scene-info.on { opacity: 1; }
+#si-era {
+  font-family: var(--sans);
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent);
+}
+#si-title {
+  font-family: var(--serif);
+  font-size: 12px; font-style: italic;
+  color: rgba(255,255,255,0.28);
+}
+body.light-scene #si-title { color: rgba(28,28,26,0.32); }
+
+/* ── TEXT STAGE ── */
+#text-stage {
+  position: fixed;
+  inset: 0; bottom: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 80px 28px 36px;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+}
+#beat-stack {
+  width: 100%; max-width: 700px;
+  display: flex; flex-direction: column;
+  gap: 0;
+}
+
+/* ── BEAT BASE ── */
+.beat {
+  width: 100%;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.beat.dim1 { opacity: 0.28; transform: translateY(0); }
+.beat.dim2 { opacity: 0.1;  transform: translateY(0); }
+.beat.gone { opacity: 0;    transform: translateY(-6px); pointer-events: none; }
+
+/* ── BEAT TYPES ── */
+.beat-vo {
+  font-family: var(--serif);
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.68;
+  color: rgba(255,255,255,0.85);
+  padding: 4px 0 14px;
+}
+body.light-scene .beat-vo { color: rgba(28,28,26,0.82); }
+
+.beat-display {
+  font-family: var(--disp);
+  font-size: clamp(30px, 5.8vw, 60px);
+  font-weight: 700; line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: #fff;
+  padding: 4px 0 18px;
+  white-space: pre-line;
+}
+body.light-scene .beat-display { color: #1C1C1A; }
+
+.beat-key {
+  font-family: var(--disp);
+  font-size: clamp(19px, 2.9vw, 30px);
+  font-weight: 700; font-style: italic;
+  line-height: 1.25;
+  color: #fff;
+  padding: 18px 0 18px 22px;
+  border-left: 3px solid var(--accent);
+  margin: 4px 0;
+}
+body.light-scene .beat-key { color: #1C1C1A; }
+
+.beat-cut {
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.17em; text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  padding: 6px 0;
+  display: flex; align-items: center; gap: 12px;
+}
+.beat-cut::after {
+  content: '';
+  display: inline-block;
+  width: 36px; height: 1px;
+  background: currentColor;
+}
+body.light-scene .beat-cut { color: rgba(28,28,26,0.28); }
+
+.beat-kicker {
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.32);
+  padding: 0 0 18px;
+}
+body.light-scene .beat-kicker { color: rgba(28,28,26,0.35); }
+
+.beat-stats {
+  display: flex; gap: 32px; flex-wrap: wrap;
+  padding: 14px 0;
+}
+.beat-stat-box { display: flex; flex-direction: column; gap: 5px; }
+.beat-stat-num {
+  font-family: var(--disp);
+  font-size: clamp(36px, 6.5vw, 56px);
+  font-weight: 700; line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+.beat-stat-lbl {
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  line-height: 1.5; max-width: 210px;
+  color: rgba(255,255,255,0.32);
+}
+body.light-scene .beat-stat-lbl { color: rgba(28,28,26,0.38); }
+
+.beat-wl {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px; padding: 10px 0;
+}
+@media (max-width: 500px) { .beat-wl { grid-template-columns: 1fr; } }
+.wl-col-label {
+  font-family: var(--sans);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  padding-bottom: 7px;
+  border-bottom: 2px solid currentColor;
+  margin-bottom: 9px;
+}
+.wl-col.win .wl-col-label { color: #2A6B48; }
+.wl-col.lose .wl-col-label { color: var(--accent); }
+.wl-item {
+  font-family: var(--sans);
+  font-size: 12px; line-height: 1.5;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.52);
+}
+
+.beat-final { display: flex; flex-direction: column; gap: 12px; padding: 8px 0; }
+.final-line {
+  display: flex; align-items: flex-start; gap: 14px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.42s ease, transform 0.42s ease;
+}
+.final-line.show { opacity: 1; transform: translateY(0); }
+.final-bullet {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0; margin-top: 10px;
+}
+.final-text {
+  font-family: var(--disp);
+  font-size: clamp(18px, 2.8vw, 26px);
+  font-weight: 700; line-height: 1.3;
+  color: #fff;
+}
+.final-text em { color: var(--accent); font-style: normal; }
+
+.beat-timeline {
+  display: flex; align-items: center;
+  padding: 10px 0; flex-wrap: nowrap;
+}
+.tl-item { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.tl-dot { width: 8px; height: 8px; border-radius: 50%; }
+.tl-yr {
+  font-family: var(--sans);
+  font-size: 8.5px; font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.28);
+  white-space: nowrap;
+}
+.tl-line { width: 22px; height: 1px; background: rgba(255,255,255,0.1); flex-shrink: 0; margin-bottom: 15px; }
+
+.beat-brand { display: flex; flex-direction: column; gap: 5px; padding: 10px 0; }
+.brand-name {
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent);
+}
+.brand-sub {
+  font-family: var(--sans);
+  font-size: 11px; letter-spacing: 0.06em;
+  color: rgba(28,28,26,0.38);
+}
+
+/* ── CONTROLS ── */
+#controls {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 72px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 22px;
+  z-index: 200;
+  background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+body.light-scene #controls {
+  background: linear-gradient(to top, rgba(250,248,244,0.88), transparent);
+}
+#controls.on { opacity: 1; }
+
+#play-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  background: none; color: rgba(255,255,255,0.55);
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; padding-left: 2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+#play-btn:hover { color: #fff; border-color: rgba(255,255,255,0.45); }
+body.light-scene #play-btn { border-color: rgba(28,28,26,0.2); color: rgba(28,28,26,0.5); }
+body.light-scene #play-btn:hover { color: #1C1C1A; border-color: rgba(28,28,26,0.4); }
+
+.prog-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.prog-track {
+  height: 2px; border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+body.light-scene .prog-track { background: rgba(28,28,26,0.1); }
+.prog-fill { height: 100%; border-radius: 2px; background: var(--accent); width: 0%; transition: width 0.4s ease; }
+.beat-track { height: 2px; border-radius: 2px; background: rgba(255,255,255,0.07); }
+body.light-scene .beat-track { background: rgba(28,28,26,0.07); }
+.beat-fill { height: 100%; border-radius: 2px; background: rgba(255,255,255,0.22); width: 0%; }
+body.light-scene .beat-fill { background: rgba(28,28,26,0.18); }
+
+#scene-ctr {
+  font-family: var(--sans);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.22);
+  flex-shrink: 0; min-width: 32px; text-align: right;
+}
+body.light-scene #scene-ctr { color: rgba(28,28,26,0.28); }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="vignette"></div>
+<div id="flash"></div>
+<div id="bg-year"></div>
+
+<div id="chapter-card">
+  <div class="ch-inner">
+    <span id="ch-badge" class="ch-badge"></span>
+    <span id="ch-year"  class="ch-year"></span>
+    <span id="ch-title" class="ch-title"></span>
+  </div>
+</div>
+
+<div id="scene-info">
+  <span id="si-era"></span>
+  <span id="si-title"></span>
+</div>
+
+<div id="text-stage">
+  <div id="beat-stack"></div>
+</div>
+
+<div id="controls">
+  <button id="play-btn" aria-label="Play / Pause">▶</button>
+  <div class="prog-wrap">
+    <div class="prog-track"><div id="prog-fill" class="prog-fill"></div></div>
+    <div class="beat-track"><div id="beat-fill" class="beat-fill"></div></div>
+  </div>
+  <span id="scene-ctr">1 / 9</span>
+</div>
+
+<script>
+(function () {
+
+/* ── DATA ─────────────────────────────────────── */
+var SCENES = [
+  {
+    bg: '#07060A', bgYear: '', light: false, chapter: null,
+    beats: [
+      { t: 'kicker',  text: 'Team Harper · HarperSmall Research · 2026', dur: 1400 },
+      { t: 'display', text: 'I built a time machine\nto answer one question…', dur: 3800 },
+      { t: 'vo',      text: 'What actually happened to e-commerce — and where is it going next?', dur: 3800 },
+      { t: 'vo',      text: 'So I went back… to the beginning.', dur: 3200 },
+      { t: 'timeline', dur: 4000 }
+    ]
+  },
+  {
+    bg: '#0E0A07', bgYear: '2005', light: false,
+    chapter: { badge: null, year: '2005', title: 'The Wild West' },
+    beats: [
+      { t: 'vo',  text: 'I land in 2005… and selling online feels like chaos.', dur: 3200 },
+      { t: 'vo',  text: 'If you wanted to run a business, you needed everything separately — a website, a payment processor, shipping, inventory. Nothing was connected.', dur: 5200 },
+      { t: 'vo',  text: 'Nothing was easy.', dur: 2200 },
+      { t: 'key', text: '"E-commerce existed… but it wasn\'t built for you."', dur: 3800 },
+      { t: 'cut', text: 'Then something changed', dur: 2400 }
+    ]
+  },
+  {
+    bg: '#07091A', bgYear: '2006', light: false,
+    chapter: { badge: 'Era I — Platform Construction', year: '2006–2013', title: 'Platforms Take Over' },
+    beats: [
+      { t: 'vo',   text: 'In 2006, two completely different ideas showed up at the same time.', dur: 3400 },
+      { t: 'vo',   text: 'Amazon launched Fulfillment by Amazon — you send them your product… they handle everything.', dur: 4400 },
+      { t: 'vo',   text: 'At the same time, Shopify launched — letting anyone build a store without coding.', dur: 4200 },
+      { t: 'vo',   text: 'One controlled the customer. The other gave you independence.', dur: 3600 },
+      { t: 'stats', items: [{ num: '2006', lbl: 'FBA & Shopify both launch — same year, opposite models' }, { num: '$1M', lbl: 'Shopify\'s first million in merchant sales — 2008' }], dur: 3800 },
+      { t: 'key',  text: '"For the first time… anyone could become an entrepreneur."', dur: 3800 }
+    ]
+  },
+  {
+    bg: '#0B0A0E', bgYear: '2015', light: false,
+    chapter: { badge: 'Era II — Cheap Acquisition', year: '2014–2018', title: 'The Gold Rush' },
+    beats: [
+      { t: 'vo',   text: 'Now I understand the game.', dur: 2400 },
+      { t: 'vo',   text: 'If you could run ads on Facebook or Instagram… you could build a brand overnight.', dur: 4400 },
+      { t: 'vo',   text: 'Customer acquisition was cheap. Growth was fast.', dur: 3200 },
+      { t: 'vo',   text: 'Casper, Warby Parker, Allbirds, Glossier. The brands that look like strategic geniuses in retrospect were often simply early — early to a channel that was genuinely inefficient for a brief window.', dur: 6000 },
+      { t: 'stats', items: [{ num: '$500', lbl: 'Average D2C customer acquisition cost in 2014 — still manageable' }], dur: 3200 },
+      { t: 'key',  text: '"If you could find customers cheap… you won."', dur: 3800 },
+      { t: 'cut',  text: 'But then… everyone figured it out', dur: 2600 }
+    ]
+  },
+  {
+    bg: '#130709', bgYear: '2020', light: false,
+    chapter: { badge: 'Era II → Era III', year: '2020–2022', title: 'Boom → Collapse' },
+    beats: [
+      { t: 'vo',   text: 'Then the pandemic hit.', dur: 2400 },
+      { t: 'vo',   text: 'E-commerce exploded — Shopify\'s merchant base nearly doubles to 1.7M+ in a single year. Everyone rushed online.', dur: 4800 },
+      { t: 'vo',   text: 'But at the same time… competition exploded too.', dur: 3200 },
+      { t: 'vo',   text: 'And then Apple changed everything.', dur: 2600 },
+      { t: 'vo',   text: 'iOS 14.5 App Tracking Transparency. Meta loses targeting precision. D2C customer acquisition cost begins a 60–80% multi-year climb. The DTC playbook breaks here — permanently.', dur: 5800 },
+      { t: 'stats', items: [{ num: '1.7M+', lbl: 'Shopify merchants by end of 2020' }, { num: '222%', lbl: 'D2C CAC surge, 2017–2025' }], dur: 3800 },
+      { t: 'key',  text: '"The entire growth engine… broke overnight."', dur: 3800 }
+    ]
+  },
+  {
+    bg: '#06080F', bgYear: '2023', light: false,
+    chapter: { badge: 'Era III — The AI Flood', year: '2023–2025', title: 'AI Changes the Game' },
+    beats: [
+      { t: 'vo',   text: 'Then I jumped forward again… and everything got easier.', dur: 3200 },
+      { t: 'vo',   text: 'AI can write ads. Design products. Answer customers.', dur: 3600 },
+      { t: 'vo',   text: 'What used to take a team of eight now takes one person and a $300/month tool stack.', dur: 4600 },
+      { t: 'vo',   text: 'But that\'s the problem.', dur: 2200 },
+      { t: 'vo',   text: 'If everyone can do it… no one stands out.', dur: 3200 },
+      { t: 'stats', items: [{ num: '500K+', lbl: 'Amazon sellers using generative AI for listings in 2025' }, { num: '$300', lbl: 'Monthly AI tool stack vs. $80–120K team cost in 2018' }], dur: 3800 },
+      { t: 'key',  text: '"AI didn\'t just create opportunity… it created noise."', dur: 3800 }
+    ]
+  },
+  {
+    bg: '#0D0C0F', bgYear: '2026', light: false,
+    chapter: { badge: 'Today', year: '2026', title: 'Winners vs. Losers' },
+    beats: [
+      { t: 'vo',   text: 'Now the pattern is clear.', dur: 2400 },
+      { t: 'vo',   text: 'The platforms captured the chokepoints. AI removed the friction of content. And the middle got squeezed from both ends simultaneously.', dur: 5200 },
+      { t: 'wl',
+        winners: ['The platforms. Amazon, Shopify, Stripe — own fulfillment, payment, and data.', 'Tiny, founder-led brands. Real point of view. Owned community. AI can\'t replicate a voice built over years.', 'Large operators with capital. Brand equity that compounds independently.'],
+        losers:  ['The competent middle. Not big enough for a real moat. Not small enough to win on craft.', 'Generic D2C brands. The "found a winning product, ran ads, scaled" playbook is now a software subscription.', 'Etsy-native makers competing on price. The trust signal is degrading fast.'],
+        dur: 5500
+      },
+      { t: 'key',  text: '"If your product is easy to copy… you lose."', dur: 3800 }
+    ]
+  },
+  {
+    bg: '#04030A', bgYear: '2030', light: false,
+    chapter: { badge: 'The Answer', year: 'One answer.', title: 'So I came back…' },
+    beats: [
+      { t: 'vo',    text: '"E-commerce didn\'t get harder because of AI…"', dur: 3200 },
+      { t: 'vo',    text: '"It got harder because differentiation disappeared."', dur: 3800 },
+      { t: 'final', items: ['Build an <em>audience</em>… before a product.', 'Use AI for <em>operations</em>… not your voice.', 'Because the only thing AI can\'t replicate… is something <em>real.</em>'], dur: 7200 },
+      { t: 'stats', items: [{ num: '3:1', lbl: 'Minimum viable LTV/CAC ratio — unchanged by AI, still the right number' }, { num: '$1T', lbl: 'Projected US B2C agentic GMV by 2030 (McKinsey)' }], dur: 4000 }
+    ]
+  },
+  {
+    bg: '#FAF8F4', bgYear: 'Next', light: true, chapter: null,
+    beats: [
+      { t: 'kicker',  text: 'HarperSmall Research · 2026', dur: 1400 },
+      { t: 'display', text: 'And that… is where\ne-commerce is going next.', dur: 4200 },
+      { t: 'vo',      text: 'The businesses that compound for a decade look more like 1990s mail-order catalogs run with 2026 tools — patient, profitable, modest, durable. Not arbitrage. Actual brands.', dur: 6500 },
+      { t: 'brand', dur: 4000 }
+    ]
+  }
+];
+
+var TOTAL = SCENES.length;
+
+/* ── STATE ─────────────────────────────────────── */
+var S = { scene: 0, beat: -1, playing: false, transitioning: false, beatTimer: null, ctrlTimer: null };
+
+/* ── REFS ──────────────────────────────────────── */
+var bgYear      = document.getElementById('bg-year');
+var flash       = document.getElementById('flash');
+var chCard      = document.getElementById('chapter-card');
+var chBadge     = document.getElementById('ch-badge');
+var chYear      = document.getElementById('ch-year');
+var chTitle     = document.getElementById('ch-title');
+var siEl        = document.getElementById('scene-info');
+var siEra       = document.getElementById('si-era');
+var siTitle     = document.getElementById('si-title');
+var beatStack   = document.getElementById('beat-stack');
+var controls    = document.getElementById('controls');
+var playBtn     = document.getElementById('play-btn');
+var progFill    = document.getElementById('prog-fill');
+var beatFillEl  = document.getElementById('beat-fill');
+var sceneCtr    = document.getElementById('scene-ctr');
+
+/* ── HELPERS ───────────────────────────────────── */
+function clearBeatTimer() { if (S.beatTimer) { clearTimeout(S.beatTimer); S.beatTimer = null; } }
+
+function totalBeats() { return SCENES.reduce(function(s,sc){ return s+sc.beats.length; },0); }
+function doneBeats()  { var d=0; for(var i=0;i<S.scene;i++) d+=SCENES[i].beats.length; return d+Math.max(0,S.beat); }
+
+function updateProgress() {
+  progFill.style.width = (doneBeats()/totalBeats()*100) + '%';
+  sceneCtr.textContent = (S.scene+1) + ' / ' + TOTAL;
+}
+
+function animateBeatFill(dur) {
+  beatFillEl.style.transition = 'none';
+  beatFillEl.style.width = '0%';
+  void beatFillEl.offsetWidth;
+  beatFillEl.style.transition = 'width ' + dur + 'ms linear';
+  beatFillEl.style.width = '100%';
+}
+
+function showControls() {
+  controls.classList.add('on');
+  clearTimeout(S.ctrlTimer);
+  S.ctrlTimer = setTimeout(function(){ if(S.playing) controls.classList.remove('on'); }, 3000);
+}
+
+/* ── BEAT RENDERING ────────────────────────────── */
+function renderBeat(b) {
+  var el = document.createElement('div');
+  el.className = 'beat';
+  switch(b.t) {
+    case 'kicker':
+      el.innerHTML = '<div class="beat-kicker">' + b.text + '</div>';
+      break;
+    case 'display':
+      el.innerHTML = '<div class="beat-display">' + b.text + '</div>';
+      break;
+    case 'vo':
+      el.innerHTML = '<p class="beat-vo">' + b.text + '</p>';
+      break;
+    case 'key':
+      el.innerHTML = '<div class="beat-key">' + b.text + '</div>';
+      break;
+    case 'cut':
+      el.innerHTML = '<div class="beat-cut">' + b.text + '</div>';
+      break;
+    case 'stats': {
+      var h = '<div class="beat-stats">';
+      b.items.forEach(function(it){ h += '<div class="beat-stat-box"><span class="beat-stat-num">'+it.num+'</span><span class="beat-stat-lbl">'+it.lbl+'</span></div>'; });
+      el.innerHTML = h + '</div>';
+      break;
+    }
+    case 'wl': {
+      var h = '<div class="beat-wl"><div class="wl-col win"><div class="wl-col-label">Winners</div>';
+      b.winners.forEach(function(w){ h += '<div class="wl-item">'+w+'</div>'; });
+      h += '</div><div class="wl-col lose"><div class="wl-col-label">Losers</div>';
+      b.losers.forEach(function(l){ h += '<div class="wl-item">'+l+'</div>'; });
+      el.innerHTML = h + '</div></div>';
+      break;
+    }
+    case 'final': {
+      var h = '<div class="beat-final">';
+      b.items.forEach(function(item,i){ h += '<div class="final-line" data-i="'+i+'"><div class="final-bullet"></div><div class="final-text">'+item+'</div></div>'; });
+      el.innerHTML = h + '</div>';
+      setTimeout(function(){
+        var lines = el.querySelectorAll('.final-line');
+        lines.forEach(function(ln,i){ setTimeout(function(){ ln.classList.add('show'); }, i*650); });
+      }, 60);
+      break;
+    }
+    case 'timeline': {
+      var yrs    = ['2005','2006–13','2014–18','2020–22','2023–25','2026'];
+      var colors = ['#3B5E8C','#3B5E8C','#2A6B48','#2A6B48','#6B1D2E','#6B1D2E'];
+      var h = '<div class="beat-timeline">';
+      yrs.forEach(function(y,i){
+        h += '<div class="tl-item"><div class="tl-dot" style="background:'+colors[i]+'"></div><span class="tl-yr">'+y+'</span></div>';
+        if(i<yrs.length-1) h += '<div class="tl-line"></div>';
+      });
+      el.innerHTML = h + '</div>';
+      break;
+    }
+    case 'brand':
+      el.innerHTML = '<div class="beat-brand"><span class="brand-name">The Founder\'s Ledger</span><span class="brand-sub">AI-Enabled Entrepreneurship in Platform E-Commerce</span></div>';
+      break;
+  }
+  return el;
+}
+
+/* ── STACK ─────────────────────────────────────── */
+function pushBeat(el) {
+  var existing = Array.from(beatStack.children);
+  existing.forEach(function(b){
+    if      (b.classList.contains('dim1')) { b.classList.remove('dim1'); b.classList.add('dim2'); }
+    else if (!b.classList.contains('dim2') && !b.classList.contains('gone')) {
+      b.classList.add('dim1');
+    } else if (b.classList.contains('dim2')) {
+      b.classList.remove('dim2'); b.classList.add('gone');
+    }
+  });
+  setTimeout(function(){
+    beatStack.querySelectorAll('.gone').forEach(function(b){ if(b.parentNode) b.parentNode.removeChild(b); });
+  }, 480);
+
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(14px)';
+  beatStack.appendChild(el);
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+  });
+}
+
+function clearStack() { beatStack.innerHTML = ''; }
+
+/* ── SCENE START ───────────────────────────────── */
+function startScene(idx) {
+  if (idx >= TOTAL) { pause(); return; }
+  S.scene = idx; S.beat = -1; S.transitioning = true;
+
+  var sc = SCENES[idx];
+  document.body.style.background = sc.bg;
+  if (sc.light) document.body.classList.add('light-scene');
+  else          document.body.classList.remove('light-scene');
+
+  bgYear.textContent = sc.bgYear || '';
+  if (idx === 0) bgYear.classList.add('glitch');
+  else           bgYear.classList.remove('glitch');
+
+  if (sc.chapter) {
+    siEra.textContent   = sc.chapter.year || '';
+    siTitle.textContent = sc.chapter.title || '';
+  } else {
+    siEra.textContent = ''; siTitle.textContent = '';
+  }
+  siEl.classList.remove('on');
+  updateProgress();
+
+  if (sc.chapter) {
+    chBadge.textContent = sc.chapter.badge || '';
+    chBadge.style.display = sc.chapter.badge ? '' : 'none';
+    chYear.textContent  = sc.chapter.year || '';
+    chTitle.textContent = sc.chapter.title || '';
+    chCard.classList.add('on');
+    setTimeout(function(){
+      chCard.classList.remove('on');
+      setTimeout(function(){
+        clearStack();
+        siEl.classList.add('on');
+        S.transitioning = false;
+        if (S.playing) advanceBeat();
+      }, 380);
+    }, 2100);
+  } else {
+    setTimeout(function(){
+      clearStack();
+      siEl.classList.add('on');
+      S.transitioning = false;
+      if (S.playing) advanceBeat();
+    }, 500);
+  }
+}
+
+/* ── BEAT ADVANCE ──────────────────────────────── */
+function advanceBeat() {
+  if (S.transitioning) return;
+  var sc = SCENES[S.scene];
+  var next = S.beat + 1;
+  if (next >= sc.beats.length) { transitionScene(S.scene + 1); return; }
+
+  S.beat = next;
+  var b = sc.beats[S.beat];
+  var el = renderBeat(b);
+  pushBeat(el);
+  updateProgress();
+  if (b.dur) animateBeatFill(b.dur);
+
+  if (S.playing && b.dur) {
+    clearBeatTimer();
+    S.beatTimer = setTimeout(advanceBeat, b.dur);
+  }
+}
+
+function transitionScene(idx) {
+  if (idx >= TOTAL) { pause(); return; }
+  S.transitioning = true;
+  clearBeatTimer();
+  flash.classList.add('on');
+  setTimeout(function(){
+    flash.classList.remove('on');
+    startScene(idx);
+  }, 300);
+}
+
+/* ── PLAY / PAUSE ──────────────────────────────── */
+function play() {
+  S.playing = true;
+  playBtn.textContent = '⏸';
+  showControls();
+  if (S.beat === -1) advanceBeat();
+  else {
+    var b = SCENES[S.scene].beats[S.beat];
+    if (b && b.dur) { clearBeatTimer(); S.beatTimer = setTimeout(advanceBeat, b.dur); }
+    else advanceBeat();
+  }
+}
+function pause() {
+  S.playing = false;
+  clearBeatTimer();
+  playBtn.textContent = '▶';
+  showControls();
+}
+function togglePlay() { S.playing ? pause() : play(); }
+
+/* ── EVENTS ────────────────────────────────────── */
+playBtn.addEventListener('click', function(e){ e.stopPropagation(); togglePlay(); });
+
+document.addEventListener('click', function(e){
+  if (e.target.closest('#controls')) return;
+  if (S.transitioning) return;
+  clearBeatTimer();
+  advanceBeat();
+  if (S.playing) {
+    var b = SCENES[S.scene] && SCENES[S.scene].beats[S.beat];
+    if (b && b.dur) S.beatTimer = setTimeout(advanceBeat, b.dur);
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (S.transitioning) return;
+    clearBeatTimer(); advanceBeat();
+    if (S.playing) {
+      var b = SCENES[S.scene] && SCENES[S.scene].beats[S.beat];
+      if (b && b.dur) S.beatTimer = setTimeout(advanceBeat, b.dur);
+    }
+  }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (S.scene > 0) transitionScene(S.scene - 1);
+  }
+});
+
+document.addEventListener('mousemove', showControls);
+document.addEventListener('touchstart', showControls, { passive: true });
+
+var tx0 = null;
+document.addEventListener('touchstart', function(e){ tx0 = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', function(e){
+  if (tx0 === null) return;
+  var dx = e.changedTouches[0].clientX - tx0;
+  if (Math.abs(dx) > 48) {
+    if (dx < 0) { clearBeatTimer(); advanceBeat(); }
+    else if (S.scene > 0) transitionScene(S.scene - 1);
+  }
+  tx0 = null;
+}, { passive: true });
+
+/* ── INIT ──────────────────────────────────────── */
+showControls();
+setTimeout(function(){
+  S.playing = true;
+  playBtn.textContent = '⏸';
+  startScene(0);
+}, 400);
+
+}());
+</script>
+</body>
+</html>
